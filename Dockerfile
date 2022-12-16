@@ -1,9 +1,22 @@
-FROM alpine:3
+FROM debian:bullseye-slim
 
-RUN ["/bin/sh", "-c", "apk add --update --no-cache bash ca-certificates curl git jq openssh uuidgen"]
-
-## Addresses https://avd.aquasec.com/nvd/cve-2022-40674
-RUN apk add --no-cache expat>2.4.9-r0
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		bash \
+		ca-certificates \
+		curl \
+		git \
+		jq \
+		openssh-client \
+		uuid-runtime \
+		awscli \
+	; \
+	curl https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb \
+		-o /tmp/session-manager-plugin.deb; \
+	dpkg -i /tmp/session-manager-plugin.deb; \
+  rm -rf /tmp/session-manager-plugin.deb; \
+	rm -rf /var/lib/apt/lists/*
 
 COPY ["src", "/src/"]
 
